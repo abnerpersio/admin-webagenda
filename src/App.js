@@ -1,12 +1,15 @@
-import logo from './logo.svg';
-import './App.css';
+import { ThemeProvider } from 'styled-components';
+import GlobalStyle from './styles/global';
 
-function App() {
+import CommonStyles from './styles/themes/common';
+
+import Layout from './components/Layout';
+
+export default function App() {
   return (
-    <div className="App">
-  
-    </div>
+    <ThemeProvider theme={CommonStyles} >
+      <GlobalStyle />
+      <Layout />
+    </ThemeProvider>
   );
 }
-
-export default App;
