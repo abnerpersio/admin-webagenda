@@ -1,37 +1,37 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Overlay, Container } from './styles';
 
+import Button from '../Button';
+
 export default function Modal(props) {
   const clickRef = useRef(null);
-  const { onClose } = props;
-
-  // useEffect(() => {
-  //   function handleClickOutside(event) {
-  //     if (clickRef.current && !clickRef.current.contains(event.target)) {
-  //       onClose();
-  //     }
-  //   }
-
-  //   document.addEventListener('mousedown', handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener('mousedown', handleClickOutside);
-  //   };
-  // }, [clickRef, onClose]);
 
   if (!props.open) {
     return null;
   }
 
-  return (
+  return ReactDOM.createPortal(
     <Overlay>
       <Container ref={clickRef}>
-        <span className="close-modal" onClick={props.onClose}>
+        <button type="button" className="close" onClick={props.onClose}>
           &times;
-        </span>
+        </button>
         {props.children}
+
+        <Button
+          variant="orange"
+          transparent
+          type="button"
+          className="btn-close"
+          onClick={props.onClose}
+        >
+          Fechar
+        </Button>
       </Container>
-    </Overlay>
+    </Overlay>,
+    document.getElementById('modal-root'),
   );
 }
 

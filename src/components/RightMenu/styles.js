@@ -12,18 +12,22 @@ export const Overlay = styled.div`
 
 export const Container = styled.div`
   background: ${({ theme }) => theme.colors.white};
-  border-radius: ${({ theme }) => theme.borderRadius};
   padding: ${({ theme }) => theme.spacing.small};
   padding-top: ${({ theme }) => theme.spacing.large};
-  min-height: 150px;
-  max-height: 480px;
-  width: 90%;
-  max-width: 400px;
+  min-height: 100%;
+  height: 100%;
+  width: 60%;
+  max-width: 580px;
   margin: 0 auto;
-  margin-top: 100px;
   box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.25);
   overflow: auto;
-  position: relative;
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  @media (max-width: 500px) {
+    width: 90%;
+  }
 
   button.btn-close {
     margin-top: ${({ theme }) => theme.spacing.medium};

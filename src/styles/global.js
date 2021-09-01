@@ -15,7 +15,7 @@ export default createGlobalStyle`
   }
 
   h2 {
-    font-size: ${({ theme }) => theme.fontSize.big};
+    font-size: ${({ theme }) => theme.fontSize.large};
   }
 
   h3 {
@@ -25,7 +25,7 @@ export default createGlobalStyle`
   h4, p {
     font-size: ${({ theme }) => theme.fontSize.text};
   }
-  
+
   html, body {
     width: 100%;
     height: 100%;

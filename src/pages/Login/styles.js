@@ -5,28 +5,25 @@ export const Container = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
 `;
 
 export const Header = styled.header`
   padding: ${({ theme }) => theme.spacing.medium};
+  display: flex;
+  align-items: center;
 
-  div {
-    display: flex;
-    align-items: center;
+  h2 {
+    color: ${({ theme }) => theme.colors.orange};
+    font-weight: ${({ theme }) => theme.fontWeight.light};
 
-    h2 {
-      color: ${({ theme }) => theme.colors.orange};
-      font-weight: ${({ theme }) => theme.fontWeight.light};
-
-      span {
-        font-weight: ${({ theme }) => theme.fontWeight.bold};
-      }
+    span {
+      font-weight: ${({ theme }) => theme.fontWeight.bold};
     }
+  }
 
-    img {
-      width: 40px;
-    }
+  img {
+    width: 40px;
   }
 
   p {
@@ -46,15 +43,12 @@ export const Footer = styled.footer`
     padding: ${theme.spacing.small};
   `}
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 80px;
+  margin-top: 50px;
   box-shadow: 0px -1px 3px rgba(0, 0, 0, 0.25);
   text-align: center;
 
   p {
-    font-size: ${({ theme }) => theme.fontSize.small};
+  font-size: ${({ theme }) => theme.fontSize.small};
     font-weight: 300;
 
     span, a {

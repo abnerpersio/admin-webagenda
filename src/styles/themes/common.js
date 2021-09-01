@@ -4,7 +4,7 @@ const commonStyles = {
     medium: '16px',
     large: '24px',
   },
-  borderRadius: '3px',
+  borderRadius: '4px',
   colors: {
     orange: '#FB5012',
     blue: '#3881F5',
@@ -12,12 +12,19 @@ const commonStyles = {
     green: '#82FF9E',
     black: '#242526',
     white: '#F8F8F8',
+    disabled: '#ccc',
+    error: '#e60000',
+    hover: {
+      blue: '#5393f7',
+      blue2: '#84b2fc',
+      orange: '#fd7c4e',
+    },
   },
   fontSize: {
     small: '14px',
     text: '16px',
     medium: '18px',
-    big: '24px',
+    large: '24px',
     main: '34px',
   },
   fontWeight: {
