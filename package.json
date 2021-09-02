@@ -28,7 +28,7 @@
     "test": "react-scripts test",
     "build": "react-scripts build",
     "build:deploy": "npm run build && npm run deploy",
-    "deploy": "aws s3 sync build/ s3://admin-webagenda --acl public-read"
+    "deploy": "aws s3 sync build/ s3://admin.webagenda.app --acl public-read"
   },
   "eslintConfig": {
     "extends": [
