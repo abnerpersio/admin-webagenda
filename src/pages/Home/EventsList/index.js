@@ -70,7 +70,7 @@ export default function EventsList() {
           </p>
         </div>
         <div>
-          <Button variant="asdas" onClick={handleToggleCalendarModal}>
+          <Button className="large-icon" onClick={handleToggleCalendarModal}>
             <FaCalendarAlt />
           </Button>
         </div>

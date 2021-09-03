@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Overlay, Container } from './styles';
@@ -6,15 +5,13 @@ import { Overlay, Container } from './styles';
 import Button from '../Button';
 
 export default function Modal(props) {
-  const clickRef = useRef(null);
-
   if (!props.open) {
     return null;
   }
 
   return ReactDOM.createPortal(
     <Overlay>
-      <Container ref={clickRef}>
+      <Container>
         <button type="button" className="close" onClick={props.onClose}>
           &times;
         </button>
