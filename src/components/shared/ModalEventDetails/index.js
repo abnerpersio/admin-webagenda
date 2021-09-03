@@ -1,9 +1,39 @@
 import PropTypes from 'prop-types';
+import { FaTrash } from 'react-icons/fa';
 
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { useContext, useState } from 'react';
 import { Container, Flex } from './styles';
 import Modal from '../../Modal';
+import Button from '../../Button';
+import { API_URL } from '../../../utils/contants';
+import { AuthContext } from '../../../context/AuthProvider';
 
 export default function ModalEventDetails({ open, onClose, selectedEvent }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useContext(AuthContext);
+
+  async function handleRemoveEvent() {
+    try {
+      setIsLoading(true);
+      await axios.delete(`${API_URL}/events/${selectedEvent._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            'x-wa-username': user.username,
+          },
+        });
+
+      toast.success('Evento excluido com sucesso');
+      onClose();
+    } catch (error) {
+      toast.error('Ocorreu um erro ao excluir esse evento!', error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   function renderEvent() {
     return (
       <Container>
@@ -31,6 +61,18 @@ export default function ModalEventDetails({ open, onClose, selectedEvent }) {
           <p>Telefone</p>
           <p>{selectedEvent.clientPhone}</p>
         </Flex>
+
+        <Button
+          type="button"
+          variant="orange"
+          onClick={handleRemoveEvent}
+          disabled={isLoading}
+        >
+          <span>
+            Excluir evento
+          </span>
+          <FaTrash />
+        </Button>
       </Container>
     );
   }

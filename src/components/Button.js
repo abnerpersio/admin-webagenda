@@ -20,9 +20,19 @@ export default styled.button`
   }
 
   svg {
+    width: ${({ theme }) => theme.spacing.medium};
+    height: ${({ theme }) => theme.spacing.medium};
+  }
+
+  & > * + svg {
+    margin-left: 8px;
+  }
+
+  &.large-icon svg {
     width: ${({ theme }) => theme.spacing.large};
     height: ${({ theme }) => theme.spacing.large};
   }
+
 
   ${({ isLoading, theme }) => isLoading
     && css`
