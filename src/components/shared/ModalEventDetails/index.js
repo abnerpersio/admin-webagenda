@@ -7,7 +7,7 @@ import { useContext, useState } from 'react';
 import { Container, Flex } from './styles';
 import Modal from '../../Modal';
 import Button from '../../Button';
-import { API_URL } from '../../../utils/contants';
+import { API_URL } from '../../../utils/constants';
 import { AuthContext } from '../../../context/AuthProvider';
 
 export default function ModalEventDetails({ open, onClose, selectedEvent }) {

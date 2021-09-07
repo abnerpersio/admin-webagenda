@@ -10,7 +10,7 @@ import Button from '../../Button';
 import { CardsList } from './styles';
 
 import { AuthContext } from '../../../context/AuthProvider';
-import { API_URL } from '../../../utils/contants';
+import { API_URL } from '../../../utils/constants';
 
 export default function ClientAttendance({ onCleanEventType, onClose }) {
   const [clientName, setClientName] = useState('');

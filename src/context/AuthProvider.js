@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import moment from 'moment';
 import { useQuery } from 'react-query';
-import { API_URL } from '../utils/contants';
+import { API_URL } from '../utils/constants';
 
 export const AuthContext = createContext();
 

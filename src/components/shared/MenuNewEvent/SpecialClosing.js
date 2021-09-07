@@ -9,7 +9,7 @@ import Button from '../../Button';
 import { CardsList } from './styles';
 
 import { AuthContext } from '../../../context/AuthProvider';
-import { API_URL } from '../../../utils/contants';
+import { API_URL } from '../../../utils/constants';
 
 export default function SpecialClosing({ onCleanEventType, onClose }) {
   const [selectedEventDate, setselectedEventDate] = useState('');
