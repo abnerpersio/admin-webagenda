@@ -1,15 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import moment from 'moment';
-import { toast } from 'react-toastify';
 
 import Input from '../../Input';
 import Button from '../../Button';
+import Loader from '../../Loader';
 import { CardsList } from './styles';
 
 import { AuthContext } from '../../../context/AuthProvider';
-import { API_URL } from '../../../utils/constants';
+import EventService from '../../../services/EventService';
 
 export default function SpecialClosing({ onCleanEventType, onClose }) {
   const [selectedEventDate, setselectedEventDate] = useState('');
@@ -56,34 +55,21 @@ export default function SpecialClosing({ onCleanEventType, onClose }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
 
-      const response = await axios.post(
-        `${API_URL}/custom/events`,
-        {
-          eventdate: moment(selectedEventDate, 'YYYY-MM-DD').format('DD-MM-YYYY'),
-          eventstarthours: selectedStartHour,
-          eventendhours: selectedEndHour,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'x-wa-username': user.username,
-          },
-        },
-      );
+    const data = await EventService.createCustomEvent({
+      user,
+      selectedDate: selectedEventDate,
+      selectedStartHour,
+      selectedEndHour,
+    });
 
-      if (response.status === 201) {
-        toast.success('Evento salvo com sucesso!');
-        cleanInputValues();
-        onClose();
-      }
-    } catch (error) {
-      toast.error('Ocorreu um erro ao salvar este evento!');
-    } finally {
-      setIsLoading(false);
+    if (data) {
+      cleanInputValues();
+      onClose();
     }
+
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -92,21 +78,19 @@ export default function SpecialClosing({ onCleanEventType, onClose }) {
     }
 
     async function getFreeHours() {
-      try {
-        const response = await axios.get(`${API_URL}/webhooks/freehours?getJSON=true`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'x-wa-username': user.username,
-            eventdate: moment(selectedEventDate, 'YYYY-MM-DD').format('DD-MM-YYYY'),
-          },
-        });
+      setIsLoading(true);
 
-        if (response.data) {
-          setPossibleHourOptions(response.data);
-        }
-      } catch (error) {
-        toast.error('Oops, não consegui buscar os horários disponíveis, verifique se algo está errado');
+      const data = await EventService.getFreeHours({
+        user,
+        returningFormat: 'json',
+        selectedDate: selectedEventDate,
+      });
+
+      if (data) {
+        setPossibleHourOptions(data);
       }
+
+      setIsLoading(false);
     }
 
     getFreeHours();
@@ -114,6 +98,8 @@ export default function SpecialClosing({ onCleanEventType, onClose }) {
 
   return (
     <form onSubmit={handleSubmit}>
+      <Loader isActive={isLoading} />
+
       <p>Data *</p>
       <Input
         type="date"

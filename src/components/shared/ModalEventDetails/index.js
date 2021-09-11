@@ -1,42 +1,35 @@
 import PropTypes from 'prop-types';
 import { FaTrash } from 'react-icons/fa';
 
-import { toast } from 'react-toastify';
-import axios from 'axios';
 import { useContext, useState } from 'react';
 import { Container, Flex } from './styles';
 import Modal from '../../Modal';
 import Button from '../../Button';
-import { API_URL } from '../../../utils/constants';
+import Loader from '../../Loader';
 import { AuthContext } from '../../../context/AuthProvider';
+import EventService from '../../../services/EventService';
 
 export default function ModalEventDetails({ open, onClose, selectedEvent }) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useContext(AuthContext);
 
   async function handleRemoveEvent() {
-    try {
-      setIsLoading(true);
-      await axios.delete(`${API_URL}/events/${selectedEvent._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'x-wa-username': user.username,
-          },
-        });
+    setIsLoading(true);
 
-      toast.success('Evento excluido com sucesso');
-      onClose();
-    } catch (error) {
-      toast.error('Ocorreu um erro ao excluir esse evento!', error.message);
-    } finally {
-      setIsLoading(false);
-    }
+    await EventService.deleteEvent({
+      user,
+      eventId: selectedEvent._id,
+    });
+
+    onClose();
+    setIsLoading(false);
   }
 
   function renderEvent() {
     return (
       <Container>
+        <Loader isActive={isLoading} />
+
         <Flex>
           <p>Cliente</p>
           <p>{selectedEvent.clientName}</p>

@@ -1,11 +1,13 @@
 import { useEffect, useState, createContext } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
+
 import { useHistory, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import axios from 'axios';
-import moment from 'moment';
 import { useQuery } from 'react-query';
-import { API_URL } from '../utils/constants';
+
+import UserService from '../services/UserService';
+import EventService from '../services/EventService';
 
 export const AuthContext = createContext();
 
@@ -37,17 +39,14 @@ export default function AuthProvider({ children }) {
       return;
     }
 
-    try {
-      const response = await axios.get(
-        `${API_URL}/events?dateRange=${moment(selectedDate).format('DD-MM-YYYY')}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'x-wa-username': user.username,
-          },
-        },
-      );
+    setLoading(true);
 
+    const data = await EventService.getScheduleData({
+      user,
+      selectedDate,
+    });
+
+    if (data) {
       setRangeDate({
         from: moment(selectedDate).subtract(5, 'days').toISOString(),
         to: moment(selectedDate).add(5, 'days').toISOString(),
@@ -55,11 +54,11 @@ export default function AuthProvider({ children }) {
 
       setUser((prevState) => ({
         ...prevState,
-        schedule: [...response.data],
+        schedule: [...data],
       }));
-    } catch (error) {
-      toast.error('Falha ao buscar dados atualizados');
     }
+
+    setLoading(false);
   }
 
   async function getNewFreeHoursData() {
@@ -67,25 +66,22 @@ export default function AuthProvider({ children }) {
       return;
     }
 
-    try {
-      const response = await axios.get(
-        `${API_URL}/webhooks/freehours?getJSON=true`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'x-wa-username': user.username,
-            eventdate: moment(selectedDate).format('DD/MM/YYYY'),
-          },
-        },
-      );
+    setLoading(true);
 
+    const data = await EventService.getFreeHours({
+      user,
+      selectedDate,
+      returningFormat: 'json',
+    });
+
+    if (data) {
       setUser((prevState) => ({
         ...prevState,
-        freeHours: [...response.data],
+        freeHours: [...data],
       }));
-    } catch (error) {
-      toast.error('Falha ao buscar dados atualizados');
     }
+
+    setLoading(false);
   }
 
   async function getUserData() {
@@ -93,32 +89,20 @@ export default function AuthProvider({ children }) {
       return null;
     }
 
-    try {
-      const localStorageUser = JSON.parse(localStorage.getItem('wa_user'));
+    const localStorageUser = JSON.parse(localStorage.getItem('wa_user'));
 
-      if (!localStorageUser) {
-        return null;
-      }
-
-      const response = await axios.get(
-        `${API_URL}/login`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorageUser.token}`,
-            'x-wa-username': localStorageUser.username,
-          },
-        },
-      );
-
-      if (!response.data) {
-        return null;
-      }
-
-      return response.data;
-    } catch (error) {
-      toast.error('Ocorreu um erro ao conectar com a nossa api!');
+    if (!localStorageUser) {
       return null;
     }
+
+    setLoading(true);
+
+    const data = await UserService.getUserWithToken({
+      user: localStorageUser,
+    });
+
+    setLoading(false);
+    return data || null;
   }
 
   async function getUser() {
@@ -131,67 +115,44 @@ export default function AuthProvider({ children }) {
       const localStorageUser = JSON.parse(localStorage.getItem('wa_user'));
 
       if (!localStorageUser) {
+        throw new Error('Falha ao encontrar usuário');
+      }
+
+      const data = await UserService.getUserWithToken({
+        user: localStorageUser,
+      });
+
+      if (data) {
+        localStorage.setItem('wa_user', JSON.stringify(data));
+        setUser(data);
         setLoading(false);
         return;
       }
 
-      const response = await axios.get(
-        `${API_URL}/login`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorageUser.token}`,
-            'x-wa-username': localStorageUser.username,
-          },
-        },
-      );
-
-      if (response.data) {
-        localStorage.setItem('wa_user', JSON.stringify(response.data));
-        setUser(response.data);
-      }
+      throw new Error('Falha ao encontrar usuário');
     } catch (error) {
       setLoading(false);
       history.push('/login');
-      toast.error('Ocorreu um erro ao conectar com a nossa api!');
     }
   }
 
   async function login({ username, password }) {
-    try {
-      setLoading(true);
+    setLoading(true);
 
-      const response = await axios.get(`${API_URL}/login`, {
-        headers: {
-          'x-wa-username': username,
-          'x-wa-password': password,
-        },
-      });
+    const data = await UserService.getUserWithLogin({
+      username,
+      password,
+    });
 
-      if (response.data) {
-        localStorage.setItem('wa_user', JSON.stringify(response.data));
-        setUser(response.data);
+    if (data) {
+      localStorage.setItem('wa_user', JSON.stringify(data));
+      setUser(data);
 
-        toast.success(`seja bem vindo ${response.data.username}!`);
-        history.push('/');
-
-        setLoading(false);
-      }
-    } catch (error) {
-      if (error?.response?.status === 400) {
-        setLoading(false);
-        toast.error('este usuário não existe!');
-        return;
-      }
-
-      if (error?.response?.status === 403) {
-        setLoading(false);
-        toast.error('usuario ou senha incorretos!');
-        return;
-      }
-
-      setLoading(false);
-      toast.error('ocorreu um erro ao conectar com os nossos servidores');
+      toast.success(`seja bem vindo ${data.username}!`);
+      history.push('/');
     }
+
+    setLoading(false);
   }
 
   async function logout() {

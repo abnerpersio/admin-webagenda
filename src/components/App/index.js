@@ -22,7 +22,7 @@ export default function App() {
             <GlobalStyle />
             <Routes />
 
-            <ToastContainer />
+            <ToastContainer limit={3} />
           </ThemeProvider>
         </AuthProvider>
       </QueryClientProvider>
