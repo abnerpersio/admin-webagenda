@@ -1,16 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
-import moment from 'moment';
-import { toast } from 'react-toastify';
 
 import Input from '../../Input';
 import Select from '../../Select';
 import Button from '../../Button';
+import Loader from '../../Loader';
 import { CardsList } from './styles';
 
 import { AuthContext } from '../../../context/AuthProvider';
-import { API_URL } from '../../../utils/contants';
+import EventService from '../../../services/EventService';
 
 export default function ClientAttendance({ onCleanEventType, onClose }) {
   const [clientName, setClientName] = useState('');
@@ -41,6 +39,8 @@ export default function ClientAttendance({ onCleanEventType, onClose }) {
     );
   }
 
+  console.log(possibleHourOptions);
+
   function handleDateChange(e) {
     setselectedEventDate(e.target.value);
   }
@@ -57,36 +57,23 @@ export default function ClientAttendance({ onCleanEventType, onClose }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
 
-      const response = await axios.post(
-        `${API_URL}/events`,
-        {
-          clientName,
-          service: selectedServices,
-          professional,
-          eventdate: moment(selectedEventDate, 'YYYY-MM-DD').format('DD-MM-YYYY'),
-          eventhours: selectedHour,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'x-wa-username': user.username,
-          },
-        },
-      );
+    const data = await EventService.createEvent({
+      user,
+      clientName,
+      professional,
+      service: selectedServices,
+      selectedDate: selectedEventDate,
+      selectedHour,
+    });
 
-      if (response.status === 201) {
-        toast.success('Evento salvo com sucesso!');
-        cleanInputValues();
-        onClose();
-      }
-    } catch (error) {
-      toast.error('Ocorreu um erro ao salvar este evento!');
-    } finally {
-      setIsLoading(false);
+    if (data) {
+      cleanInputValues();
+      onClose();
     }
+
+    setIsLoading(false);
   }
 
   useEffect(() => {
@@ -95,22 +82,20 @@ export default function ClientAttendance({ onCleanEventType, onClose }) {
     }
 
     async function getFreeHours() {
-      try {
-        const response = await axios.get(`${API_URL}/webhooks/freehours`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'x-wa-username': user.username,
-            eventdate: moment(selectedEventDate, 'YYYY-MM-DD').format('DD-MM-YYYY'),
-            serviceoption: selectedServices,
-          },
-        });
+      setIsLoading(true);
 
-        if (response.data) {
-          setPossibleHourOptions(response.data?.options);
-        }
-      } catch (error) {
-        toast.error('Oops, não consegui buscar os horários disponíveis, verifique se algo está errado');
+      const data = await EventService.getFreeHours({
+        user,
+        selectedDate: selectedEventDate,
+        serviceoption: selectedServices,
+      });
+
+      if (data) {
+        console.log(data?.options);
+        setPossibleHourOptions(data?.options);
       }
+
+      setIsLoading(false);
     }
 
     getFreeHours();
@@ -118,6 +103,8 @@ export default function ClientAttendance({ onCleanEventType, onClose }) {
 
   return (
     <form onSubmit={handleSubmit}>
+      <Loader isActive={isLoading} />
+
       <p>Nome do cliente *</p>
       <Input
         value={clientName}
@@ -158,21 +145,22 @@ export default function ClientAttendance({ onCleanEventType, onClose }) {
 
       <p>Horários disponíveis *</p>
       <CardsList>
-        {selectedEventDate
-          ? possibleHourOptions?.map((possibleHour) => (
-            <button
-              disabled={possibleHour.value === selectedHour}
-              onClick={() => setSelectedHour(possibleHour.value)}
-              key={possibleHour.value}
-              type="button"
-            >
-              {possibleHour.value}
-            </button>
-          )) : (
-            <small>
-              Escolha uma data para listar os horários
-            </small>
-          )}
+        {possibleHourOptions?.map((possibleHour) => (
+          <button
+            disabled={possibleHour.value === selectedHour}
+            onClick={() => setSelectedHour(possibleHour.value)}
+            key={possibleHour.value}
+            type="button"
+          >
+            {possibleHour.value}
+          </button>
+        ))}
+
+        {!selectedEventDate && (
+        <small>
+          Escolha uma data para listar os horários
+        </small>
+        )}
       </CardsList>
 
       <Button

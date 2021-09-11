@@ -7,6 +7,11 @@ export const Container = styled.div`
     margin-bottom: 24px;
   }
 
+  p {
+    opacity: 0.8;
+    margin: 8px 0;
+  }
+
   form {
     p {
       opacity: 0.8;

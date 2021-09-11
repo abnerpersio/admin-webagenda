@@ -1,6 +1,4 @@
 import { useContext, useMemo } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
 import {
   Container, Header, Body, Footer,
 } from './styles';
@@ -13,7 +11,7 @@ import FloatingButton from '../../components/FloatingButton';
 import Button from '../../components/Button';
 import { AuthContext } from '../../context/AuthProvider';
 import { askNotificationsPermissions } from '../../utils/pushNotifications';
-import { API_URL } from '../../utils/contants';
+import UserService from '../../services/UserService';
 
 export default function Home() {
   const { user } = useContext(AuthContext);
@@ -32,32 +30,18 @@ export default function Home() {
   }, [user?.username]);
 
   async function handleActiveNotifications() {
-    try {
-      const token = await askNotificationsPermissions();
+    const token = await askNotificationsPermissions();
 
-      if (!token) {
-        return;
-      }
-
-      const response = await axios.put(
-        `${API_URL}/users/${user.id}`,
-        {
-          notificationsToken: token,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'x-wa-username': user.username,
-          },
-        },
-      );
-
-      if (response) {
-        toast.success('as notificações foram ativadas com sucesso!');
-      }
-    } catch (error) {
-      toast.error(`algo deu errado ${error}`);
+    if (!token) {
+      return;
     }
+
+    await UserService.updateUser({
+      user,
+      body: {
+        notificationsToken: token,
+      },
+    });
   }
 
   return (
