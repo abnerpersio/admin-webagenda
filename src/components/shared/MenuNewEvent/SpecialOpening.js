@@ -1,20 +1,22 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
-import moment from 'moment';
-import { toast } from 'react-toastify';
 
+import moment from 'moment';
 import Input from '../../Input';
 import Button from '../../Button';
+import Modal from '../../Modal';
 
 import { AuthContext } from '../../../context/AuthProvider';
-import { API_URL } from '../../../utils/contants';
+import EventService from '../../../services/EventService';
+import Loader from '../../Loader';
+import { Container } from './styles';
 
 export default function SpecialOpening({ onCleanEventType, onClose }) {
   const [selectedEventDate, setselectedEventDate] = useState('');
   const [selectedStartHour, setSelectedStartHour] = useState('');
   const [selectedEndHour, setSelectedEndHour] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfirmModalOpen, setConfirmModal] = useState(false);
 
   const { user } = useContext(AuthContext);
 
@@ -27,6 +29,10 @@ export default function SpecialOpening({ onCleanEventType, onClose }) {
     && hourRegex.test(selectedStartHour)
     && hourRegex.test(selectedEndHour)
   );
+
+  function toggleConfirmModal() {
+    setConfirmModal((prevState) => !prevState);
+  }
 
   function cleanInputValues() {
     onCleanEventType();
@@ -55,41 +61,42 @@ export default function SpecialOpening({ onCleanEventType, onClose }) {
     setselectedEventDate(e.target.value);
   }
 
+  async function addSpecialOpening(operation) {
+    const data = await EventService.createSpecialHours({
+      user,
+      selectedDate: selectedEventDate,
+      selectedStartHour,
+      selectedEndHour,
+      operation,
+    });
+
+    if (data?.error === 'duplicated') {
+      toggleConfirmModal();
+      return;
+    }
+
+    if (data) {
+      cleanInputValues();
+      onClose();
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
 
-    try {
-      setIsLoading(true);
-
-      const response = await axios.post(
-        `${API_URL}/users/${user.id}/special-hours`,
-        {
-          eventdate: moment(selectedEventDate, 'YYYY-MM-DD').format('DD-MM-YYYY'),
-          from: selectedStartHour,
-          to: selectedEndHour,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'x-wa-username': user.username,
-          },
-        },
-      );
-
-      if (response.status === 201) {
-        toast.success('Evento salvo com sucesso!');
-        cleanInputValues();
-        onClose();
-      }
-    } catch (error) {
-      toast.error('Ocorreu um erro ao salvar este evento!');
-    } finally {
-      setIsLoading(false);
-    }
+    setIsLoading(true);
+    await addSpecialOpening();
+    setIsLoading(false);
   }
 
   return (
     <form onSubmit={handleSubmit}>
+      <Loader isActive={isLoading} />
+
+      <p>
+        Escolha uma data para atender em horários diferentes nesse dia
+      </p>
+
       <p>Data *</p>
       <Input
         type="date"
@@ -120,6 +127,26 @@ export default function SpecialOpening({ onCleanEventType, onClose }) {
       >
         Salvar evento
       </Button>
+
+      <Modal
+        open={isConfirmModalOpen}
+        onClose={toggleConfirmModal}
+      >
+        <Container>
+          <h3>
+            Deseja excluir o horário do dia e salvar um novo?
+          </h3>
+
+          <p>Novo horário para o dia {moment(selectedEventDate, 'YYYY-MM-DD').format('DD/MM')}: {selectedStartHour} até {selectedEndHour}</p>
+
+          <Button
+            onClick={() => addSpecialOpening('delete_old_and_create')}
+          >
+            Sim, quero salvar
+          </Button>
+
+        </Container>
+      </Modal>
     </form>
   );
 }
