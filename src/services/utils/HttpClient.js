@@ -29,7 +29,7 @@ class HttpClient {
   async put({ url, body, options, credentials }) {
     const headersCredentials = getCredentialsHeaders(credentials);
 
-    return axios.post(url, body, {
+    return axios.put(url, body, {
       ...options,
       headers: {
         ...options?.headers,
