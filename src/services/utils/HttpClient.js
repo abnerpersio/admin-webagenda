@@ -10,6 +10,7 @@ class HttpClient {
       headers: {
         ...options?.headers,
         ...headersCredentials,
+        'x-wa-verification': 'verified',
       },
     });
   }
@@ -22,6 +23,7 @@ class HttpClient {
       headers: {
         ...options?.headers,
         ...headersCredentials,
+        'x-wa-verification': 'verified',
       },
     });
   }
@@ -34,6 +36,7 @@ class HttpClient {
       headers: {
         ...options?.headers,
         ...headersCredentials,
+        'x-wa-verification': 'verified',
       },
     });
   }
@@ -46,6 +49,7 @@ class HttpClient {
       headers: {
         ...options?.headers,
         ...headersCredentials,
+        'x-wa-verification': 'verified',
       },
     });
   }
