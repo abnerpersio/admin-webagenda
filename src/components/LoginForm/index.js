@@ -1,4 +1,4 @@
-import { useRef, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Form } from './styles';
 
 import Button from '../Button';
@@ -8,14 +8,19 @@ import { AuthContext } from '../../context/AuthProvider';
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const UsernameInputRef = useRef('');
-  const PasswordInputRef = useRef('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const { login, isLoading } = useContext(AuthContext);
+
+  const isFormValid = (
+    username
+    && password
+  );
 
   function handleSubmit() {
     login({
-      username: UsernameInputRef.current.value,
-      password: PasswordInputRef.current.value,
+      username,
+      password,
     });
   }
 
@@ -31,13 +36,17 @@ export default function LoginForm() {
       }}
     >
       <h2>É bom ter você de volta!</h2>
-      <Input placeholder="Nome de usuário" ref={UsernameInputRef} />
+      <Input
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Nome de usuário"
+      />
 
       <Input
+        onChange={(e) => setPassword(e.target.value)}
         type={showPassword ? 'text' : 'password'}
         placeholder="Senha"
-        ref={PasswordInputRef}
       />
+
       <button
         className="toggle-password"
         type="button"
@@ -46,7 +55,11 @@ export default function LoginForm() {
         {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
       </button>
 
-      <Button type="submit" isLoading={isLoading}>
+      <Button
+        disabled={!isFormValid}
+        type="submit"
+        isLoading={isLoading}
+      >
         {isLoading ? 'carregando...' : 'Entrar'}
       </Button>
     </Form>

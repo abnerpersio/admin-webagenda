@@ -84,8 +84,12 @@ export default function AuthProvider({ children }) {
     setLoading(false);
   }
 
-  async function getUserData() {
+  async function refreshUserData() {
     if (location.pathname.includes(['/login'])) {
+      return null;
+    }
+
+    if (!user) {
       return null;
     }
 
@@ -176,12 +180,16 @@ export default function AuthProvider({ children }) {
     getNewFreeHoursData();
   }, [selectedDate]);
 
-  const { data } = useQuery('userdata', getUserData, {
+  const { data } = useQuery('userdata', refreshUserData, {
     refetchInterval: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
+    if (!data) {
+      return;
+    }
+
     setUser(data);
   }, [data]);
 

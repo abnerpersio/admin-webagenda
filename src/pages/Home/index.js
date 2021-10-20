@@ -1,4 +1,5 @@
 import { useContext, useMemo } from 'react';
+import { toast } from 'react-toastify';
 import {
   Container, Header, Body, Footer,
 } from './styles';
@@ -33,15 +34,20 @@ export default function Home() {
     const token = await askNotificationsPermissions();
 
     if (!token) {
+      toast.error('Ocorreu um erro ao ativar as notificações');
       return;
     }
 
-    await UserService.updateUser({
+    const updated = await UserService.updateUser({
       user,
       body: {
         notificationsToken: token,
       },
     });
+
+    if (updated) {
+      toast.success('As notificações foram ativadas com sucesso!');
+    }
   }
 
   return (
