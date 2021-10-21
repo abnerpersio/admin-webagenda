@@ -15,10 +15,10 @@ export const firebaseApp = firebase.initializeApp({
 //   console.log(await messaging.isSupported());
 // })();
 
-// messaging.onMessage((payload) => {
-//   console.log('recebi mensagem', payload);
-//   toast.info(payload);
-// });
+messaging.onMessage((payload) => {
+  console.log('recebi mensagem', payload);
+  toast.info(payload);
+});
 
 export const askNotificationsPermissions = async () => {
   try {
