@@ -11,13 +11,19 @@ export const firebaseApp = firebase.initializeApp({
   appId: '1:570290653629:web:5251d544346bf002e6ead4',
 });
 
-messaging.onMessage((payload) => {
-  toast.info(payload);
-});
+// (async () => {
+//   console.log(await messaging.isSupported());
+// })();
+
+// messaging.onMessage = (payload) => {
+//   console.log('recebi mensagem');
+//   toast.info(payload);
+// }
 
 export const askNotificationsPermissions = async () => {
   try {
-    const messagingObj = messaging.getMessaging();
+    const messagingObj = messaging.getMessaging(firebaseApp);
+
     const token = await messaging.getToken(
       messagingObj,
       {
