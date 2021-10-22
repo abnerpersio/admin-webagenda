@@ -28,6 +28,10 @@ export default function LoginForm() {
     setShowPassword((prevState) => !prevState);
   }
 
+  function handleChangeUsername(e) {
+    setUsername(e.target.value?.toLowerCase());
+  }
+
   return (
     <Form
       onSubmit={(e) => {
@@ -37,11 +41,13 @@ export default function LoginForm() {
     >
       <h2>É bom ter você de volta!</h2>
       <Input
-        onChange={(e) => setUsername(e.target.value)}
+        value={username}
+        onChange={handleChangeUsername}
         placeholder="Nome de usuário"
       />
 
       <Input
+        value={password}
         onChange={(e) => setPassword(e.target.value)}
         type={showPassword ? 'text' : 'password'}
         placeholder="Senha"

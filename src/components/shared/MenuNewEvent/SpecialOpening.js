@@ -10,6 +10,7 @@ import { AuthContext } from '../../../context/AuthProvider';
 import EventService from '../../../services/EventService';
 import Loader from '../../Loader';
 import { Container } from './styles';
+import formatHours from '../../../utils/format-hours';
 
 export default function SpecialOpening({ onCleanEventType, onClose }) {
   const [selectedEventDate, setselectedEventDate] = useState('');
@@ -43,17 +44,13 @@ export default function SpecialOpening({ onCleanEventType, onClose }) {
 
   function handleStartHourChange(e) {
     setSelectedStartHour(
-      e.target.value
-        .replace(/\D/, '')
-        .replace(/(\d{2})(\d{2})/, '$1:$2'),
+      formatHours(e.target.value),
     );
   }
 
   function handleEndHourChange(e) {
     setSelectedEndHour(
-      e.target.value
-        .replace(/\D/, '')
-        .replace(/(\d{2})(\d{2})/, '$1:$2'),
+      formatHours(e.target.value),
     );
   }
 
