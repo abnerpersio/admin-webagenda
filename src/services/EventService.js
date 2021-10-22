@@ -63,7 +63,7 @@ class EventService {
 
       if (response) {
         toast.success('Evento salvo com sucesso!');
-        return response.data;
+        return true;
       }
 
       throw new Error('Falha ao salvar evento');
@@ -88,7 +88,12 @@ class EventService {
         },
       });
 
-      return response.data;
+      if (response) {
+        toast.success('Evento salvo com sucesso!');
+        return true;
+      }
+
+      throw new Error('Falha ao salvar evento');
     } catch (error) {
       toast.error(`Ocorreu um erro ao salvar este evento: ${error?.response?.data?.message || error.message}`);
       return null;

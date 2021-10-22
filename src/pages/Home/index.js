@@ -63,7 +63,7 @@ export default function Home() {
           </h2>
         </div>
 
-        <p>{HelloSentence}</p>
+        <p>{user?.username && HelloSentence}</p>
       </Header>
 
       <Body>
